@@ -1,0 +1,24 @@
+# Node & Frontend
+node_modules/
+dist/
+build/
+.npm/
+
+# Python & Backend
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.db
+backend/resolvex.db*
+.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
