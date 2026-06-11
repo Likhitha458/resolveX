@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api';
-import { Zap, LogIn, Shield } from 'lucide-react';
+import { LogIn, Eye, EyeOff } from 'lucide-react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -36,34 +37,19 @@ export default function Login() {
       <div className="auth-brand">
         <div className="auth-brand-content">
           <div className="auth-brand-logo">
-            <div className="auth-brand-logo-mark">
-              <Zap size={24} color="white" strokeWidth={2.5} />
-            </div>
+            <div className="auth-brand-logo-mark">R</div>
             <span className="auth-brand-logo-text">ResolveX</span>
           </div>
 
           <h2>
-            IT Support,<br />
-            <span>Resolved by AI.</span>
+            Raise, manage,<br />
+            and resolve<br />
+            IT tickets <span>easily.</span>
           </h2>
 
           <p>
-            Instantly match issues to solutions. Auto-classify, assign, and resolve tickets — powered by Gemini AI.
+            A simple and efficient way to streamline IT support and keep everything on track.
           </p>
-
-          <div className="auth-features">
-            {[
-              'AI-powered ticket classification',
-              'Semantic similarity matching',
-              'Auto-assign by department',
-              'Real-time priority detection',
-            ].map((f) => (
-              <div className="auth-feature-item" key={f}>
-                <span className="auth-feature-dot" />
-                {f}
-              </div>
-            ))}
-          </div>
         </div>
       </div>
 
@@ -78,7 +64,7 @@ export default function Login() {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Email</label>
+            <label>Email address</label>
             <input
               type="email"
               className="form-input"
@@ -91,30 +77,44 @@ export default function Login() {
           </div>
           <div className="form-group">
             <label>Password</label>
-            <input
-              type="password"
-              className="form-input"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              id="login-password"
-            />
+            <div className="input-icon-wrap">
+              <input
+                type={showPassword ? "text" : "password"}
+                className="form-input"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                id="login-password"
+              />
+              <button
+                type="button"
+                className="input-icon-right"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{ pointerEvents: 'auto' }}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
           </div>
-          <button type="submit" className="btn btn-primary btn-full" disabled={loading} id="login-submit" style={{ marginTop: '0.5rem' }}>
-            {loading ? <span className="spinner" /> : <><LogIn size={15} /> Sign In</>}
+          
+          <div className="form-row">
+            <label className="checkbox-label">
+              <input type="checkbox" />
+              <span>Remember me</span>
+            </label>
+            <Link to="/forgot" className="forgot-link">Forgot password?</Link>
+          </div>
+
+          <button type="submit" className="btn btn-primary btn-full" disabled={loading} id="login-submit">
+            {loading ? <span className="spinner" /> : <>Sign In</>}
           </button>
         </form>
 
-        <div className="auth-link" style={{ marginTop: '1.25rem' }}>
-          No account? <Link to="/signup">Create one</Link>
-        </div>
+        <div className="auth-divider">or</div>
 
-        <div className="demo-accounts" style={{ marginTop: '1.5rem' }}>
-          <strong><Shield size={10} style={{ display: 'inline', marginRight: 4 }} />Demo accounts</strong>
-          user@resolvex.com / user123{'\n'}
-          admin@resolvex.com / admin123{'\n'}
-          dev@resolvex.com / dev123
+        <div className="auth-link">
+          No account? <Link to="/signup">Create one</Link>
         </div>
       </div>
     </div>

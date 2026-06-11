@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
 import Navbar from '../components/Navbar';
-import { PlayCircle, CheckCircle, RefreshCw, MessageSquare, Inbox } from 'lucide-react';
+import { PlayCircle, CheckCircle, RefreshCw, MessageSquare, Inbox, ChevronDown } from 'lucide-react';
 
 export default function DeveloperPanel() {
   const [tickets, setTickets] = useState([]);
@@ -10,6 +10,7 @@ export default function DeveloperPanel() {
   const [resolution, setResolution] = useState('');
   const [updating, setUpdating] = useState(false);
   const [success, setSuccess] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
 
   useEffect(() => { fetchTickets(); }, []);
 
@@ -50,80 +51,92 @@ export default function DeveloperPanel() {
     finally { setUpdating(false); }
   };
 
-  const openTickets = tickets.filter(t => t.status === 'open');
-  const inProgressTickets = tickets.filter(t => t.status === 'in_progress');
-  const resolvedTickets = tickets.filter(t => t.status === 'resolved' || t.status === 'closed');
+  // Filter tickets by status
+  const applyStatusFilter = (ticketList) => {
+    if (filterStatus === 'all') return ticketList;
+    if (filterStatus === 'pending') return ticketList.filter(t => t.status === 'open');
+    if (filterStatus === 'in_progress') return ticketList.filter(t => t.status === 'in_progress');
+    if (filterStatus === 'resolved') return ticketList.filter(t => t.status === 'resolved' || t.status === 'closed');
+    return ticketList;
+  };
+
+  // Organize by category
+  const ticketsByCategory = {
+    'developer': applyStatusFilter(tickets.filter(t => t.category?.toLowerCase() === 'developer')),
+    'support': applyStatusFilter(tickets.filter(t => t.category?.toLowerCase() === 'support')),
+    'network': applyStatusFilter(tickets.filter(t => t.category?.toLowerCase() === 'network')),
+  };
 
   const TicketCard = ({ t }) => (
-    <div className="kanban-card">
-      <div className="kanban-card-top">
-        <span className="kanban-card-id">#{t.id}</span>
-        <div style={{ display: 'flex', gap: '0.35rem' }}>
-          <span className={`badge badge-${t.priority}`}>{t.priority}</span>
-          {t.sentiment && <span className={`badge badge-${t.sentiment}`}>{t.sentiment}</span>}
-        </div>
+    <div className="dev-ticket-item">
+      <div className="dev-ticket-top-row">
+        <span className="dev-ticket-id">#{t.id}</span>
+        <span className="dev-ticket-title">{t.title}</span>
       </div>
-
-      <div className="kanban-card-title">{t.title}</div>
-      <div className="kanban-card-desc">{t.description}</div>
+      
+      <div className="dev-ticket-desc">{t.description}</div>
 
       {t.resolution && (
-        <div style={{
-          padding: '0.6rem 0.75rem',
-          background: 'rgba(16,217,160,0.06)',
-          border: '1px solid rgba(16,217,160,0.15)',
-          borderRadius: '8px',
-          marginBottom: '0.75rem',
-          fontSize: '0.75rem',
-          color: 'var(--emerald)',
-          lineHeight: 1.5,
-        }}>
-          ✓ {t.resolution}
+        <div className="dev-ticket-resolution">
+          {t.resolution}
         </div>
       )}
 
-      <div className="kanban-card-footer">
-        <div className="kanban-card-meta">
-          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{t.creator_name}</span>
-          {t.created_at && (
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
-              · {new Date(t.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-            </span>
-          )}
-        </div>
-        <div className="kanban-card-actions">
-          {t.status === 'open' && (
-            <button
-              className="btn btn-secondary btn-sm"
-              onClick={() => updateStatus(t.id, 'in_progress')}
-              disabled={updating}
-              id={`start-btn-${t.id}`}
-            >
-              <PlayCircle size={12} /> Start
-            </button>
-          )}
-          {t.status === 'in_progress' && (
-            <button
-              className="btn btn-success btn-sm"
-              onClick={() => { setResolveModal(t.id); setResolution(''); }}
-              id={`resolve-btn-${t.id}`}
-            >
-              <CheckCircle size={12} /> Resolve
-            </button>
-          )}
-          {!t.resolution && t.status !== 'resolved' && t.status !== 'closed' && t.status !== 'open' && (
-            <button
-              className="btn btn-secondary btn-sm"
-              onClick={() => { setResolveModal(t.id); setResolution(''); }}
-              id={`add-resolution-btn-${t.id}`}
-            >
-              <MessageSquare size={12} /> Note
-            </button>
-          )}
-        </div>
+      <div className="dev-ticket-meta-row">
+        <span className={`badge badge-${t.priority}`}>{t.priority}</span>
+        {t.sentiment && <span className={`badge badge-${t.sentiment}`}>{t.sentiment}</span>}
+        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+          {t.creator_name} · {new Date(t.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+        </span>
+      </div>
+
+      <div className="dev-ticket-actions-row">
+        <span className={`badge badge-${t.status}`}>{t.status.replace('_', ' ')}</span>
+        {t.status === 'open' && (
+          <button
+            className="btn btn-secondary btn-xs"
+            onClick={() => updateStatus(t.id, 'in_progress')}
+            disabled={updating}
+          >
+            <PlayCircle size={11} /> Start
+          </button>
+        )}
+        {t.status === 'in_progress' && (
+          <button
+            className="btn btn-success btn-xs"
+            onClick={() => { setResolveModal(t.id); setResolution(''); }}
+          >
+            <CheckCircle size={11} /> Resolve
+          </button>
+        )}
+        {!t.resolution && t.status !== 'resolved' && t.status !== 'closed' && t.status !== 'open' && (
+          <button
+            className="btn btn-secondary btn-xs"
+            onClick={() => { setResolveModal(t.id); setResolution(''); }}
+          >
+            <MessageSquare size={11} /> Add Note
+          </button>
+        )}
       </div>
     </div>
   );
+
+  const CategorySection = ({ title, categoryKey }) => {
+    const categoryTickets = ticketsByCategory[categoryKey];
+    if (categoryTickets.length === 0) return null;
+
+    return (
+      <div className="dev-category-section">
+        <div className="dev-category-header">
+          <h3>{title}</h3>
+          <span className="dev-category-count">{categoryTickets.length}</span>
+        </div>
+        <div className="dev-category-tickets">
+          {categoryTickets.map(t => <TicketCard key={t.id} t={t} />)}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="app-container">
@@ -132,11 +145,26 @@ export default function DeveloperPanel() {
         <div className="page-header">
           <div>
             <h1>My Assignments</h1>
-            <p>Tickets assigned to you — drag-free Kanban view</p>
+            <p>Tickets assigned to you organized by category</p>
           </div>
-          <button className="btn btn-secondary" onClick={fetchTickets} disabled={loading}>
-            <RefreshCw size={13} /> Refresh
-          </button>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <div className="dev-filter-wrapper">
+              <select
+                className="form-select dev-status-filter"
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+              >
+                <option value="all">All Tickets</option>
+                <option value="pending">Pending</option>
+                <option value="in_progress">In Progress</option>
+                <option value="resolved">Resolved</option>
+              </select>
+              <ChevronDown size={14} className="dev-dropdown-icon" />
+            </div>
+            <button className="btn btn-secondary" onClick={fetchTickets} disabled={loading}>
+              <RefreshCw size={13} /> Refresh
+            </button>
+          </div>
         </div>
 
         {success && <div className="success-message">{success}</div>}
@@ -152,48 +180,17 @@ export default function DeveloperPanel() {
             <p>You're all caught up — nothing pending right now</p>
           </div>
         ) : (
-          <div className="kanban-board">
-            {/* Open */}
-            <div className="kanban-col col-open">
-              <div className="kanban-col-header">
-                Open
-                <span className="kanban-col-count">{openTickets.length}</span>
+          <div className="dev-tickets-container">
+            <CategorySection title="Developer" categoryKey="developer" />
+            <CategorySection title="Support" categoryKey="support" />
+            <CategorySection title="Network" categoryKey="network" />
+            {Object.values(ticketsByCategory).every(arr => arr.length === 0) && (
+              <div className="empty-state">
+                <Inbox size={48} />
+                <h3>No tickets match this filter</h3>
+                <p>Try selecting a different status filter</p>
               </div>
-              <div className="kanban-col-body">
-                {openTickets.length === 0
-                  ? <div style={{ padding: '1rem', textAlign: 'center', fontSize: '0.78rem', color: 'var(--text-muted)' }}>No open tickets</div>
-                  : openTickets.map(t => <TicketCard key={t.id} t={t} />)
-                }
-              </div>
-            </div>
-
-            {/* In Progress */}
-            <div className="kanban-col col-progress">
-              <div className="kanban-col-header">
-                In Progress
-                <span className="kanban-col-count">{inProgressTickets.length}</span>
-              </div>
-              <div className="kanban-col-body">
-                {inProgressTickets.length === 0
-                  ? <div style={{ padding: '1rem', textAlign: 'center', fontSize: '0.78rem', color: 'var(--text-muted)' }}>Nothing in progress</div>
-                  : inProgressTickets.map(t => <TicketCard key={t.id} t={t} />)
-                }
-              </div>
-            </div>
-
-            {/* Resolved */}
-            <div className="kanban-col col-resolved">
-              <div className="kanban-col-header">
-                Resolved
-                <span className="kanban-col-count">{resolvedTickets.length}</span>
-              </div>
-              <div className="kanban-col-body">
-                {resolvedTickets.length === 0
-                  ? <div style={{ padding: '1rem', textAlign: 'center', fontSize: '0.78rem', color: 'var(--text-muted)' }}>No resolved tickets yet</div>
-                  : resolvedTickets.map(t => <TicketCard key={t.id} t={t} />)
-                }
-              </div>
-            </div>
+            )}
           </div>
         )}
 
@@ -206,7 +203,7 @@ export default function DeveloperPanel() {
                 <label>Resolution Notes</label>
                 <textarea
                   className="form-textarea"
-                  placeholder="Briefly describe the fix applied…"
+                  placeholder="Provide troubleshooting steps and resolution details…"
                   value={resolution}
                   onChange={(e) => setResolution(e.target.value)}
                   required
