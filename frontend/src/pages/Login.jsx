@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api';
-import { LogIn, Eye, EyeOff } from 'lucide-react';
+import { LogIn, Eye, EyeOff, Zap } from 'lucide-react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -37,7 +37,7 @@ export default function Login() {
       <div className="auth-brand">
         <div className="auth-brand-content">
           <div className="auth-brand-logo">
-            <div className="auth-brand-logo-mark">R</div>
+            <Zap size={48} strokeWidth={3} className="auth-brand-icon" />
             <span className="auth-brand-logo-text">ResolveX</span>
           </div>
 
