@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api';
-import { UserPlus } from 'lucide-react';
+import { Zap, UserPlus } from 'lucide-react';
 
 export default function Signup() {
   const [form, setForm] = useState({ name: '', email: '', password: '', role: 'user', department: '' });
@@ -40,10 +40,46 @@ export default function Signup() {
 
   return (
     <div className="auth-page">
-      <div className="auth-card fade-in">
-        <div className="auth-logo">
-          <h1>ResolveX</h1>
-          <p>Create your account</p>
+      {/* Left brand panel */}
+      <div className="auth-brand">
+        <div className="auth-brand-content">
+          <div className="auth-brand-logo">
+            <div className="auth-brand-logo-mark">
+              <Zap size={24} color="white" strokeWidth={2.5} />
+            </div>
+            <span className="auth-brand-logo-text">ResolveX</span>
+          </div>
+
+          <h2>
+            Join the team.<br />
+            <span>Fix issues faster.</span>
+          </h2>
+
+          <p>
+            Create your account and start resolving IT tickets with the power of AI-driven classification and smart routing.
+          </p>
+
+          <div className="auth-features">
+            {[
+              'Smart ticket routing & assignment',
+              'Gemini AI-powered insights',
+              'Sentiment & priority detection',
+              'Knowledge base matching',
+            ].map((f) => (
+              <div className="auth-feature-item" key={f}>
+                <span className="auth-feature-dot" />
+                {f}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Right form panel */}
+      <div className="auth-form-panel">
+        <div className="auth-form-header">
+          <h1>Create account</h1>
+          <p>Get started with ResolveX</p>
         </div>
 
         {error && <div className="error-message">{error}</div>}
@@ -51,11 +87,11 @@ export default function Signup() {
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Full Name</label>
-            <input type="text" name="name" className="form-input" placeholder="John Doe" value={form.name} onChange={handleChange} required id="signup-name" />
+            <input type="text" name="name" className="form-input" placeholder="Alex Johnson" value={form.name} onChange={handleChange} required id="signup-name" />
           </div>
           <div className="form-group">
             <label>Email</label>
-            <input type="email" name="email" className="form-input" placeholder="you@example.com" value={form.email} onChange={handleChange} required id="signup-email" />
+            <input type="email" name="email" className="form-input" placeholder="you@company.com" value={form.email} onChange={handleChange} required id="signup-email" />
           </div>
           <div className="form-group">
             <label>Password</label>
@@ -64,7 +100,7 @@ export default function Signup() {
           <div className="form-group">
             <label>Role</label>
             <select name="role" className="form-select" value={form.role} onChange={handleChange} id="signup-role">
-              <option value="user">User</option>
+              <option value="user">User — Submit tickets</option>
               <option value="developer">Developer / Agent</option>
               <option value="admin">Admin</option>
             </select>
@@ -78,12 +114,12 @@ export default function Signup() {
               </select>
             </div>
           )}
-          <button type="submit" className="btn btn-primary btn-full" disabled={loading} id="signup-submit">
-            {loading ? <span className="spinner" /> : <><UserPlus size={16} /> Create Account</>}
+          <button type="submit" className="btn btn-primary btn-full" disabled={loading} id="signup-submit" style={{ marginTop: '0.25rem' }}>
+            {loading ? <span className="spinner" /> : <><UserPlus size={15} /> Create Account</>}
           </button>
         </form>
 
-        <div className="auth-link">
+        <div className="auth-link" style={{ marginTop: '1.25rem' }}>
           Already have an account? <Link to="/login">Sign in</Link>
         </div>
       </div>

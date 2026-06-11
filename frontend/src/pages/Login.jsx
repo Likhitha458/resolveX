@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api';
-import { LogIn } from 'lucide-react';
+import { Zap, LogIn, Shield } from 'lucide-react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -24,7 +24,7 @@ export default function Login() {
       else if (role === 'developer') navigate('/developer');
       else navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.detail || 'Login failed');
+      setError(err.response?.data?.detail || 'Login failed. Check your credentials.');
     } finally {
       setLoading(false);
     }
@@ -32,10 +32,46 @@ export default function Login() {
 
   return (
     <div className="auth-page">
-      <div className="auth-card fade-in">
-        <div className="auth-logo">
-          <h1>ResolveX</h1>
-          <p>AI-Powered IT Helpdesk</p>
+      {/* Left brand panel */}
+      <div className="auth-brand">
+        <div className="auth-brand-content">
+          <div className="auth-brand-logo">
+            <div className="auth-brand-logo-mark">
+              <Zap size={24} color="white" strokeWidth={2.5} />
+            </div>
+            <span className="auth-brand-logo-text">ResolveX</span>
+          </div>
+
+          <h2>
+            IT Support,<br />
+            <span>Resolved by AI.</span>
+          </h2>
+
+          <p>
+            Instantly match issues to solutions. Auto-classify, assign, and resolve tickets — powered by Gemini AI.
+          </p>
+
+          <div className="auth-features">
+            {[
+              'AI-powered ticket classification',
+              'Semantic similarity matching',
+              'Auto-assign by department',
+              'Real-time priority detection',
+            ].map((f) => (
+              <div className="auth-feature-item" key={f}>
+                <span className="auth-feature-dot" />
+                {f}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Right form panel */}
+      <div className="auth-form-panel">
+        <div className="auth-form-header">
+          <h1>Welcome back</h1>
+          <p>Sign in to your ResolveX account</p>
         </div>
 
         {error && <div className="error-message">{error}</div>}
@@ -46,7 +82,7 @@ export default function Login() {
             <input
               type="email"
               className="form-input"
-              placeholder="you@example.com"
+              placeholder="you@company.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -58,27 +94,27 @@ export default function Login() {
             <input
               type="password"
               className="form-input"
-              placeholder="Enter your password"
+              placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               id="login-password"
             />
           </div>
-          <button type="submit" className="btn btn-primary btn-full" disabled={loading} id="login-submit">
-            {loading ? <span className="spinner" /> : <><LogIn size={16} /> Sign In</>}
+          <button type="submit" className="btn btn-primary btn-full" disabled={loading} id="login-submit" style={{ marginTop: '0.5rem' }}>
+            {loading ? <span className="spinner" /> : <><LogIn size={15} /> Sign In</>}
           </button>
         </form>
 
-        <div className="auth-link">
-          Don't have an account? <Link to="/signup">Sign up</Link>
+        <div className="auth-link" style={{ marginTop: '1.25rem' }}>
+          No account? <Link to="/signup">Create one</Link>
         </div>
 
-        <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'var(--bg-card)', borderRadius: 'var(--radius)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-          <strong style={{ color: 'var(--text-secondary)' }}>Demo Accounts:</strong><br />
-          User: user@resolvex.com / user123<br />
-          Admin: admin@resolvex.com / admin123<br />
-          Dev: dev@resolvex.com / dev123
+        <div className="demo-accounts" style={{ marginTop: '1.5rem' }}>
+          <strong><Shield size={10} style={{ display: 'inline', marginRight: 4 }} />Demo accounts</strong>
+          user@resolvex.com / user123{'\n'}
+          admin@resolvex.com / admin123{'\n'}
+          dev@resolvex.com / dev123
         </div>
       </div>
     </div>

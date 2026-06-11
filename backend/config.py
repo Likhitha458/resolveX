@@ -8,10 +8,10 @@ JWT_SECRET = os.getenv("JWT_SECRET", "resolvex-secret-key-change-in-production")
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_HOURS = 24
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyCyyXRqararM9RkfO5GNxKJsOYoy1IDxVo")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 
-SIMILARITY_THRESHOLD = 0.60
+SIMILARITY_THRESHOLD = 0.75
 
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 

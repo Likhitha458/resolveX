@@ -38,6 +38,7 @@ class CheckSimilarResponse(BaseModel):
     similar_ticket: Optional[dict] = None
     ai_response: Optional[str] = None
     similarity_score: Optional[float] = None
+    recommendations: Optional[list[dict]] = None
 
 
 class CreateTicketRequest(BaseModel):
@@ -79,27 +80,39 @@ def check_similar_tickets(req: CheckSimilarRequest, db: Session = Depends(get_db
         raise HTTPException(status_code=503, detail="AI engine is still loading. Please try again.")
 
     combined_text = f"{req.title} {req.description}"
-    results = ai_engine.search_similar(combined_text, top_k=1)
+    results = ai_engine.search_similar(combined_text, top_k=3)
 
     if results:
-        solved_ticket = db.query(SolvedTicket).filter(SolvedTicket.id == results[0]["id"]).first()
-        if solved_ticket:
-            ai_response = generate_response(
-                user_issue=combined_text,
-                solved_title=solved_ticket.title,
-                solved_resolution=solved_ticket.resolution or "",
-            )
+        recommendations = []
+        for res in results:
+            solved_ticket = db.query(SolvedTicket).filter(SolvedTicket.id == res["id"]).first()
+            if solved_ticket:
+                ai_response = generate_response(
+                    user_issue=combined_text,
+                    solved_title=solved_ticket.title,
+                    solved_resolution=solved_ticket.resolution or "",
+                )
+                recommendations.append({
+                    "similar_ticket": {
+                        "id": solved_ticket.id,
+                        "title": solved_ticket.title,
+                        "description": solved_ticket.description,
+                        "category": solved_ticket.category,
+                        "resolution": solved_ticket.resolution,
+                    },
+                    "ai_response": ai_response,
+                    "similarity_score": res["score"],
+                })
+
+        if recommendations:
+            recommendations.sort(key=lambda x: x["similarity_score"], reverse=True)
+            top_rec = recommendations[0]
             return CheckSimilarResponse(
                 found=True,
-                similar_ticket={
-                    "id": solved_ticket.id,
-                    "title": solved_ticket.title,
-                    "description": solved_ticket.description,
-                    "category": solved_ticket.category,
-                    "resolution": solved_ticket.resolution,
-                },
-                ai_response=ai_response,
-                similarity_score=results[0]["score"],
+                similar_ticket=top_rec["similar_ticket"],
+                ai_response=top_rec["ai_response"],
+                similarity_score=top_rec["similarity_score"],
+                recommendations=recommendations,
             )
 
     return CheckSimilarResponse(found=False)

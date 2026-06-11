@@ -39,6 +39,8 @@ def seed_database():
                 User(name="Sarah Support", email="support@resolvex.com", password_hash=pwd_context.hash("support123"), role="developer", department="Software Development"),
                 User(name="Mike Network", email="network@resolvex.com", password_hash=pwd_context.hash("network123"), role="developer", department="Network Operations"),
                 User(name="Lisa Billing", email="billing@resolvex.com", password_hash=pwd_context.hash("billing123"), role="developer", department="Billing Department"),
+                User(name="Alex Account", email="account@resolvex.com", password_hash=pwd_context.hash("account123"), role="developer", department="Account Management"),
+                User(name="Harry Hardware", email="hardware@resolvex.com", password_hash=pwd_context.hash("hardware123"), role="developer", department="Hardware Support"),
                 User(name="Test User", email="user@resolvex.com", password_hash=pwd_context.hash("user123"), role="user"),
             ]
             for user in default_users:

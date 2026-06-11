@@ -83,9 +83,29 @@ class AIEngine:
     # ──────────────── Classification ────────────────
 
     def classify_category(self, text: str) -> str:
-        """Classify ticket into a category using keyword matching + embedding similarity."""
-        text_lower = text.lower()
+        """Classify ticket into a category using Gemini or keyword matching."""
+        from config import GEMINI_API_KEY, GEMINI_MODEL
+        if GEMINI_API_KEY:
+            try:
+                import google.generativeai as genai
+                genai.configure(api_key=GEMINI_API_KEY)
+                model = genai.GenerativeModel(GEMINI_MODEL)
+                prompt = f"""Classify the following IT support ticket description into one of these exact categories:
+technical, billing, account, network, software, hardware.
+Return ONLY the category name in lowercase. Do not include any other text, explanation, or punctuation.
 
+Ticket:
+{text}"""
+                response = model.generate_content(prompt)
+                result = response.text.strip().lower()
+                for cat in CATEGORIES:
+                    if cat in result:
+                        return cat
+            except Exception as e:
+                print(f"[AI] Error calling Gemini for classification: {e}")
+
+        # Offline Fallback
+        text_lower = text.lower()
         keyword_map = {
             "billing": ["invoice", "charge", "payment", "refund", "subscription", "billing", "price", "cost", "renewal", "plan", "credit card", "overcharged"],
             "account": ["login", "password", "account", "sign in", "sign up", "locked", "access", "profile", "authentication", "2fa", "sso", "email notification", "session", "delete account"],
@@ -111,27 +131,53 @@ class AIEngine:
 
     def analyze_sentiment(self, text: str) -> str:
         """Analyze sentiment and return: angry, frustrated, neutral, or satisfied."""
+        from config import GEMINI_API_KEY, GEMINI_MODEL
+        if GEMINI_API_KEY:
+            try:
+                import google.generativeai as genai
+                genai.configure(api_key=GEMINI_API_KEY)
+                model = genai.GenerativeModel(GEMINI_MODEL)
+                prompt = f"""Analyze the sentiment of the following IT support ticket.
+Return ONLY one of these exact words in lowercase: angry, frustrated, neutral, satisfied.
+Do not include any other text, explanation, or punctuation.
+
+Ticket:
+{text}"""
+                response = model.generate_content(prompt)
+                result = response.text.strip().lower()
+                for sentiment in ["angry", "frustrated", "neutral", "satisfied"]:
+                    if sentiment in result:
+                        return sentiment
+            except Exception as e:
+                print(f"[AI] Error calling Gemini for sentiment: {e}")
+
+        # Offline Fallback
         try:
-            result = self.sentiment_pipeline(text[:512])[0]  # Limit text length
-            label_scores = {r["label"]: r["score"] for r in result}
-
-            neg_score = label_scores.get("NEGATIVE", 0)
-            pos_score = label_scores.get("POSITIVE", 0)
-
-            # Check for frustration/anger keywords
-            anger_keywords = ["terrible", "worst", "hate", "furious", "unacceptable", "disgusting", "ridiculous"]
-            frustration_keywords = ["frustrated", "annoying", "again", "still", "keeps", "constantly", "always", "why", "fed up"]
+            anger_keywords = ["terrible", "worst", "hate", "furious", "unacceptable", "disgusting", "ridiculous", "garbage", "trash", "useless", "bullshit", "crap"]
+            frustration_keywords = ["frustrated", "annoying", "again", "still", "keeps", "constantly", "always", "why", "fed up", "broken", "crashed", "slow", "freeze", "stuck", "failing", "down", "not working"]
+            satisfied_keywords = ["satisfied", "thanks", "thank you", "great", "awesome", "solved", "fixed", "resolved"]
 
             text_lower = text.lower()
             has_anger = any(kw in text_lower for kw in anger_keywords)
             has_frustration = any(kw in text_lower for kw in frustration_keywords)
+            has_satisfied = any(kw in text_lower for kw in satisfied_keywords)
 
             if has_anger:
                 return "angry"
-            elif has_frustration or neg_score > 0.85:
+            elif has_frustration:
                 return "frustrated"
-            else:
-                return "neutral"
+            elif has_satisfied:
+                return "satisfied"
+
+            # Check model output with strict triggers
+            result = self.sentiment_pipeline(text[:512])[0]
+            label_scores = {r["label"]: r["score"] for r in result}
+            neg_score = label_scores.get("NEGATIVE", 0)
+
+            if neg_score > 0.95 and ("!" in text or "?" in text or text.isupper()):
+                return "frustrated"
+
+            return "neutral"
         except Exception:
             return "neutral"
 
@@ -139,8 +185,29 @@ class AIEngine:
 
     def calculate_priority(self, text: str, sentiment: str) -> str:
         """Determine priority based on sentiment and urgency keywords."""
-        text_lower = text.lower()
+        from config import GEMINI_API_KEY, GEMINI_MODEL
+        if GEMINI_API_KEY:
+            try:
+                import google.generativeai as genai
+                genai.configure(api_key=GEMINI_API_KEY)
+                model = genai.GenerativeModel(GEMINI_MODEL)
+                prompt = f"""Determine the priority of the following IT support ticket.
+Return ONLY one of these exact words in lowercase: low, medium, high, critical.
+Do not include any other text, explanation, or punctuation.
 
+Ticket:
+{text}
+(Calculated Sentiment: {sentiment})"""
+                response = model.generate_content(prompt)
+                result = response.text.strip().lower()
+                for prio in ["low", "medium", "high", "critical"]:
+                    if prio in result:
+                        return prio
+            except Exception as e:
+                print(f"[AI] Error calling Gemini for priority: {e}")
+
+        # Offline Fallback
+        text_lower = text.lower()
         urgency_count = sum(1 for kw in URGENCY_KEYWORDS if kw in text_lower)
 
         if sentiment == "angry" and urgency_count >= 2:

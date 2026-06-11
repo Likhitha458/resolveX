@@ -19,19 +19,19 @@ def generate_response(user_issue: str, solved_title: str, solved_resolution: str
 
         genai.configure(api_key=GEMINI_API_KEY)
 
-        prompt = f"""You are a helpful IT support assistant. A user has submitted an issue, and a similar issue has been found in the knowledge base.
+        prompt = f"""You are a professional IT support assistant. A user has an issue and a similar resolved case exists.
 
-User's Issue:
-{user_issue}
+User's Issue: {user_issue}
 
-Similar Resolved Issue:
-Title: {solved_title}
+Resolved Case — Title: {solved_title}
 Resolution: {solved_resolution}
 
-Based on the resolution above, provide a clear, friendly, and step-by-step response to help the user. Be conversational but concise. 
-Address the user directly and tailor the steps to their specific issue description.
-Do not mention that this is from a knowledge base or previous ticket.
-Format the steps as a numbered list."""
+Write a short, professional fix in 2–3 bullet points. Rules:
+- Be direct and actionable. No greetings or fluff.
+- Each bullet must be a single, clear action step.
+- Max 15 words per bullet.
+- Do NOT mention the knowledge base or previous tickets.
+- Use plain bullet points (•), not numbers."""
 
         model = genai.GenerativeModel(GEMINI_MODEL)
         response = model.generate_content(prompt)
