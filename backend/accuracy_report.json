@@ -1,0 +1,153 @@
+{
+  "timestamp": "2026-06-11T21:13:00.580936",
+  "models": {
+    "sentiment_analysis": {
+      "name": "DistilBERT (distilbert-base-uncased-finetuned-sst-2-english)",
+      "accuracy": 66.67,
+      "test_cases": 9,
+      "correct": 6,
+      "results": [
+        {
+          "text": "I'm absolutely furious! This system keeps crashing and nobod...",
+          "expected": "NEGATIVE",
+          "predicted": "NEGATIVE",
+          "confidence": 1.0,
+          "correct": true
+        },
+        {
+          "text": "This is completely unacceptable! I've been waiting for 3 day...",
+          "expected": "NEGATIVE",
+          "predicted": "NEGATIVE",
+          "confidence": 1.0,
+          "correct": true
+        },
+        {
+          "text": "My computer is broken and I can't work at all! This is ridic...",
+          "expected": "NEGATIVE",
+          "predicted": "NEGATIVE",
+          "confidence": 1.0,
+          "correct": true
+        },
+        {
+          "text": "I need help resetting my password....",
+          "expected": "NEUTRAL",
+          "predicted": "NEGATIVE",
+          "confidence": 0.999,
+          "correct": false
+        },
+        {
+          "text": "Can you help me update my email address?...",
+          "expected": "NEUTRAL",
+          "predicted": "NEGATIVE",
+          "confidence": 0.997,
+          "correct": false
+        },
+        {
+          "text": "My WiFi is not working. I need support....",
+          "expected": "NEUTRAL",
+          "predicted": "NEGATIVE",
+          "confidence": 1.0,
+          "correct": false
+        },
+        {
+          "text": "Great support! The issue was fixed quickly....",
+          "expected": "POSITIVE",
+          "predicted": "POSITIVE",
+          "confidence": 0.993,
+          "correct": true
+        },
+        {
+          "text": "Thank you for resolving this so efficiently!...",
+          "expected": "POSITIVE",
+          "predicted": "POSITIVE",
+          "confidence": 1.0,
+          "correct": true
+        },
+        {
+          "text": "Perfect! Everything is working now. Much appreciated!...",
+          "expected": "POSITIVE",
+          "predicted": "POSITIVE",
+          "confidence": 1.0,
+          "correct": true
+        }
+      ]
+    },
+    "category_classification": {
+      "name": "Keyword Matching with Fallback",
+      "accuracy": 100.0,
+      "test_cases": 10,
+      "correct": 10,
+      "results": [
+        {
+          "text": "My WiFi keeps disconnecting every few minutes...",
+          "expected": "network",
+          "predicted": "network",
+          "correct": true
+        },
+        {
+          "text": "I can't log into my account, getting locked out...",
+          "expected": "account",
+          "predicted": "account",
+          "correct": true
+        },
+        {
+          "text": "Excel keeps crashing when I open large files...",
+          "expected": "software",
+          "predicted": "software",
+          "correct": true
+        },
+        {
+          "text": "My laptop is running incredibly slow...",
+          "expected": "technical",
+          "predicted": "technical",
+          "correct": true
+        },
+        {
+          "text": "I was overcharged on my billing statement...",
+          "expected": "billing",
+          "predicted": "billing",
+          "correct": true
+        },
+        {
+          "text": "My monitor screen has dead pixels...",
+          "expected": "hardware",
+          "predicted": "hardware",
+          "correct": true
+        },
+        {
+          "text": "Internet connection is very unstable...",
+          "expected": "network",
+          "predicted": "network",
+          "correct": true
+        },
+        {
+          "text": "Can't remember my password to sign in...",
+          "expected": "account",
+          "predicted": "account",
+          "correct": true
+        },
+        {
+          "text": "Windows keeps freezing and booting slowly...",
+          "expected": "technical",
+          "predicted": "technical",
+          "correct": true
+        },
+        {
+          "text": "Want to request a refund for subscription...",
+          "expected": "billing",
+          "predicted": "billing",
+          "correct": true
+        }
+      ]
+    },
+    "embedding_similarity": {
+      "name": "Sentence Transformers (all-MiniLM-L6-v2)",
+      "accuracy": 25.0,
+      "test_cases": 4,
+      "correct": 1,
+      "results": [
+        {
+          "text1": "My WiFi is not working",
+          "text2": "Internet connection is down",
+          "expected_similar": true,
+          "predicted_similar": 
